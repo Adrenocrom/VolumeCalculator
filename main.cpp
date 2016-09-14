@@ -126,8 +126,8 @@ img readFromTxt(string filename) {
 int main(int argc, char* argv[]) {
 	if(argc < 3 || argc > 4) {
 		cout<<"wrong params"<<endl;
-		cout<<"LINUX: ./volume <filename> <threshold> [dx]"<<endl;
-		cout<<"WINDOOF: volume.exe <filename> <threshold> [dx]"<<endl;
+		cout<<"LINUX: ./volume <filename> <threshold> [dz]"<<endl;
+		cout<<"WINDOOF: volume.exe <filename> <threshold> [dz]"<<endl;
 		return -1;
 	}
 	string filename;
