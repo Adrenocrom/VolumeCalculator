@@ -106,6 +106,7 @@ img readFromTxt(string filename) {
 	for(auto it = _l.begin(); it != _l.end(); it++) {
 		if(cnt == size) {
 			res.median = *it;
+			break;
 		}
 
 		cnt++;
