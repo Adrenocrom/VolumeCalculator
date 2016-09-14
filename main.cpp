@@ -117,15 +117,17 @@ img readFromTxt(string filename) {
 	res.width = res._x.size();
 	res.height = res._y.size();
 
+	cout<<"Resolution: "<<res.width<<" "<<res.height<<endl;
+
 	file.close();
 	return res;
 }
 
 int main(int argc, char* argv[]) {
-	if(argc != 3) {
+	if(argc < 3 || argc > 4) {
 		cout<<"wrong params"<<endl;
-		cout<<"LINUX: ./volume <filename> <threshold>"<<endl;
-		cout<<"WINDOOF: volume.exe <filename> <threshold>"<<endl;
+		cout<<"LINUX: ./volume <filename> <threshold> [dx]"<<endl;
+		cout<<"WINDOOF: volume.exe <filename> <threshold> [dx]"<<endl;
 		return -1;
 	}
 	string filename;
@@ -138,20 +140,28 @@ int main(int argc, char* argv[]) {
 
 	float	dx = _img._x[1] - _img._x[0];
 	float	dy = _img._y[1] - _img._y[0];
+	float	dz = 1.0f; //0.35f;
 
-	cout<<"Median:     "<<_img.median<<endl;
-	cout<<"Mittelwert: "<<_img.mean<<endl;
+	if(argc == 4)
+		dz = stof(argv[3]);
+
+	cout<<"dx: "<<dx<<endl;
+	cout<<"dy: "<<dy<<endl;
+	cout<<"dz: "<<dz<<endl;
+
+	cout<<"Median:            "<<_img.median<<endl;
+	cout<<"Mean (Mittelwert): "<<_img.mean<<endl;
 
 	for(int y = 0; y < _img.height; ++y) {
 		for(int x = 0; x < _img.width; ++x) {
 			d = T - _img.data[y][x];
 
 			if(d > 0.0f)
-				V += d * dx * dy;
+				V += d * dz * dx * dy;
 		}
 	}
 	
-	cout<<"volume: "<<V<<endl;
+	cout<<"volume:            "<<V<<endl;
 
 	return 0;
 }
