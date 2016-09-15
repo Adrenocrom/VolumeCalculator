@@ -42,6 +42,9 @@ string makeStringClean(string str) {
 			*it == ' ') {
 			res.push_back(*it);	
 		}
+		else {
+			//printf("%d\n", *it);
+		}
 	}
 
 
@@ -67,6 +70,7 @@ img readFromTxt(string filename) {
 	while(getline(file, str_line, '\n')) {
 
 		std::replace( str_line.begin(), str_line.end(), '\t', ' ');
+		std::replace( str_line.begin(), str_line.end(), '\r', ' ');
 	
 		stringstream line(makeStringClean(str_line));
 	
@@ -124,17 +128,21 @@ img readFromTxt(string filename) {
 }
 
 int main(int argc, char* argv[]) {
-	if(argc < 3 || argc > 4) {
+	if(argc < 2 || argc > 4) {
 		cout<<"wrong params"<<endl;
-		cout<<"LINUX: ./volume <filename> <threshold> [dz]"<<endl;
-		cout<<"WINDOOF: volume.exe <filename> <threshold> [dz]"<<endl;
+		cout<<"LINUX: ./volume <filename> [threshold] [dz]"<<endl;
+		cout<<"WINDOOF: volume.exe <filename> [threshold} [dz]"<<endl;
 		return -1;
 	}
 	string filename;
 	filename = argv[1];
 	img _img = readFromTxt(filename);
 
-	float	T = stof(argv[2]);
+	float	T = 0.0f;
+
+	if(argc == 3)
+		T = stof(argv[2]);
+
 	float	d = 0.0f;
 	float	V = 0.0f;
 
