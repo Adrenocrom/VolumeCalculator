@@ -15,12 +15,12 @@ struct img {
 	int width;
 	int height;
 
-	float median;
-	float mean;
+	double median;
+	double mean;
 
-	vector<float> _x;
-	vector<float> _y;
-	vector< vector<float> > data;
+	vector<double> _x;
+	vector<double> _y;
+	vector<double> data;
 };
 
 string makeStringClean(string str) {
@@ -53,10 +53,8 @@ string makeStringClean(string str) {
 
 img readFromTxt(string filename) {
 	img res;
-	res.mean = 0.0f;
-	vector<float>	_t;
-	list<float>		_l;
-	int cnt = 0;
+	res.mean = 0.0;
+	list<double>	_l;
 
 	ifstream file(filename.c_str());
 	if(!file.is_open()) {
@@ -66,47 +64,42 @@ img readFromTxt(string filename) {
 
 	string str_line;
 	string tag;
-	float temp;
-	while(getline(file, str_line, '\n')) {
+	double temp;
 
-		std::replace( str_line.begin(), str_line.end(), '\t', ' ');
-		std::replace( str_line.begin(), str_line.end(), '\r', ' ');
-	
-		stringstream line(makeStringClean(str_line));
-	
-		if(cnt == 0) {} 
-		else if(cnt == 1) {
-			while(getline(line, tag, ' ')) {
-				if(tag.compare("") != 0)
-					res._x.push_back(std::stof(tag));
-			}
-
+	// push data back
+	getline(file, str_line, '\n');
+	getline(file, str_line, '\n');
+	std::replace( str_line.begin(), str_line.end(), '\t', ' ');
+	stringstream line(makeStringClean(str_line));
+	while(getline(line, tag, ' ')) {
+		if(tag.compare("") != 0) {
+			res._x.push_back(stod(tag));
 		}
-		else {
-			line >> tag;
-			res._y.push_back(stof(tag));
-
-			_t.clear();
-
-			while(getline(line, tag, ' ')) {
-				if(tag.compare("") != 0) {
-					temp = stof(tag);
-					_t.push_back(temp);
-					_l.push_back(temp);
-					res.mean += temp;
-				}
-			}
-
-		
-			res.data.push_back(_t);
-		}
-		
-		cnt++;
 	}
 
+	
+	while(getline(file, str_line, '\n')) {
+		std::replace( str_line.begin(), str_line.end(), '\t', ' ');
+		stringstream line(makeStringClean(str_line));
+		line >> tag;
+			
+		res._y.push_back(stod(tag));
+
+		while(getline(line, tag, ' ')) {
+			if(tag.compare("") != 0) {
+				temp = stod(tag);
+				res.data.push_back(temp);
+				res.mean += temp;
+
+				_l.push_back(temp);
+			}
+		}
+	}
+
+
 	_l.sort();
-	cnt = 0;
-	int size = (int)(((float) _l.size()) / 2.0f);
+	int cnt = 0;
+	int size = (int)(((double) _l.size()) / 2.0);
 	for(auto it = _l.begin(); it != _l.end(); it++) {
 		if(cnt == size) {
 			res.median = *it;
@@ -116,7 +109,7 @@ img readFromTxt(string filename) {
 		cnt++;
 	}
 
-	res.mean /= (float)_l.size();
+	res.mean /= (double)_l.size();
 
 	res.width = res._x.size();
 	res.height = res._y.size();
@@ -130,45 +123,83 @@ img readFromTxt(string filename) {
 int main(int argc, char* argv[]) {
 	if(argc < 2 || argc > 4) {
 		cout<<"wrong params"<<endl;
-		cout<<"LINUX: ./volume <filename> [threshold] [dz]"<<endl;
-		cout<<"WINDOOF: volume.exe <filename> [threshold} [dz]"<<endl;
+		cout<<"LINUX: ./volume <filename> [threshold]"<<endl;
+		cout<<"WINDOOF: volume.exe <filename> [threshold]"<<endl;
 		return -1;
 	}
 	string filename;
 	filename = argv[1];
 	img _img = readFromTxt(filename);
 
-	float	T = 0.0f;
-
+	int o = 50; // offset
 	if(argc == 3)
-		T = stof(argv[2]);
+		o = stoi(argv[2]);
+	int ox = _img.width - o -1;
+	int oy = _img.height - o -1;
 
-	float	d = 0.0f;
-	float	V = 0.0f;
-
-	float	dx = _img._x[1] - _img._x[0];
-	float	dy = _img._y[1] - _img._y[0];
-	float	dz = 1.0f; //0.35f;
-
+	double	T = 0.0;
 	if(argc == 4)
-		dz = stof(argv[3]);
+		T = stod(argv[3]);
+
+	double	d = 0.0;
+	double	V = 0.0;
+
+	double	dx = _img._x[1] - _img._x[0];
+	double	dy = _img._y[1] - _img._y[0];
 
 	cout<<"dx: "<<dx<<endl;
 	cout<<"dy: "<<dy<<endl;
-	cout<<"dz: "<<dz<<endl;
 
 	cout<<"Median:            "<<_img.median<<endl;
 	cout<<"Mean (Mittelwert): "<<_img.mean<<endl;
 
+	list<double> _l;
+	double mean = 0;
+	double median = 0;
+
 	for(int y = 0; y < _img.height; ++y) {
 		for(int x = 0; x < _img.width; ++x) {
-			d = T - _img.data[y][x];
-
-			if(d > 0.0f)
-				V += d * dz * dx * dy;
+			if(x < o || x > ox && y < o || y > oy) {
+			   mean += _img.data[y * _img.height + x];
+				_l.push_back(_img.data[y * _img.width + x]);
+			}
 		}
 	}
 	
+	int N = _l.size();
+	mean /= (double)N;
+	
+	_l.sort();
+	
+	int cnt = 0;
+	for(auto it = _l.begin(); it != _l.end(); it++) {
+		if(cnt == 99) {
+			median = *it;
+			break;
+		}
+		cnt++;
+	}
+
+
+	cout<<"outer mean: "<<mean<<endl;
+	cout<<"outer median: "<<median<<endl;
+
+	for(int y = 0; y < _img.height; ++y) {
+		for(int x = 0; x < _img.width; ++x) {
+			double& p = _img.data[y * _img.width + x];
+
+			if(p < median) {
+				d = mean - p;
+
+				if(d > 0.0) {
+					V += d;
+				}
+			}
+		}
+	}
+
+
+	V *= dx * dy;
 	cout<<"volume:            "<<V<<endl;
 
 	return 0;
