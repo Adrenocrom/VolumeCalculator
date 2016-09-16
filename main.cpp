@@ -190,10 +190,7 @@ int main(int argc, char* argv[]) {
 
 			if(p < median) {
 				d = mean - p;
-
-				if(d > 0.0) {
 					V += d;
-				}
 			}
 		}
 	}
