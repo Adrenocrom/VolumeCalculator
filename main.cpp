@@ -123,8 +123,8 @@ img readFromTxt(string filename) {
 int main(int argc, char* argv[]) {
 	if(argc < 2 || argc > 4) {
 		cout<<"wrong params"<<endl;
-		cout<<"LINUX: ./volume <filename> [threshold]"<<endl;
-		cout<<"WINDOOF: volume.exe <filename> [threshold]"<<endl;
+		cout<<"LINUX: ./volume <filename> [border = 50] [min = 100]"<<endl;
+		cout<<"WINDOOF: volume.exe <filename> [border = 50] [min = 100]"<<endl;
 		return -1;
 	}
 	string filename;
@@ -137,9 +137,9 @@ int main(int argc, char* argv[]) {
 	int ox = _img.width - o -1;
 	int oy = _img.height - o -1;
 
-	double	T = 0.0;
+	int	min = 99;
 	if(argc == 4)
-		T = stod(argv[3]);
+		min = stoi(argv[3])-1;
 
 	double	d = 0.0;
 	double	V = 0.0;
@@ -173,7 +173,7 @@ int main(int argc, char* argv[]) {
 	
 	int cnt = 0;
 	for(auto it = _l.begin(); it != _l.end(); it++) {
-		if(cnt == 99) {
+		if(cnt == min) {
 			median = *it;
 			break;
 		}
